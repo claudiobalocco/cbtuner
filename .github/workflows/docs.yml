@@ -1,0 +1,46 @@
+name: Generate and Deploy Documentation
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Install Doxygen
+        run: sudo apt-get update && sudo apt-get install doxygen -y
+
+      - name: Generate Kotlin Docs (Dokka)
+        run: chmod +x ./gradlew && ./gradlew dokkaHtml
+
+      - name: Generate C++ Docs (Doxygen)
+        run: doxygen Doxyfile
+
+      - name: Prepare Website Layout
+        run: |
+          mkdir -p site
+          cp -r app/build/dokka/html/* site/
+          mkdir -p site/cpp
+          cp -r doxygen_docs/html/* site/cpp/
+          cp PRIVACY_POLICY.md site/ || true
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          force_orphan: true

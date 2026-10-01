@@ -1,0 +1,7 @@
+PROJECT_NAME           = "CB Tuner"
+INPUT                  = app/src/main/cpp
+OUTPUT_DIRECTORY       = doxygen_docs
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+RECURSIVE              = YES
+EXTRACT_ALL            = YES
